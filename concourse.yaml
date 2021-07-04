@@ -1,0 +1,157 @@
+version: 2.1
+resource_types:
+  - name: docker-hub
+    type: docker-image
+    privileged: true
+    source:
+      repository: concourse/docker-image-resource
+    defaults:
+      email: {{docker-hub-email}}
+      username: {{docker-hub-user}}
+      password: {{docker-hub-password}}
+
+resources:
+  # Repository
+  - name: base-images
+    type: git
+    check_every: 5m
+    source:
+      uri: https://github.com/phpdocker-io/base-images.git
+      branch: master
+
+  # Periodic triggers to get daily builds
+  - name: time-slot-1
+    type: time
+    source:
+      start: 12:00 AM
+      stop: 12:20 AM
+
+  - name: time-slot-2
+    type: time
+    source:
+      start: 12:25 AM
+      stop: 12:45 AM
+
+  - name: time-slot-3
+    type: time
+    source:
+      start: 12:50 AM
+      stop: 1:10 AM
+
+  # Docker hub repositories
+  - name: php72-cli
+    type: docker-hub
+    source:
+      repository: phpdockerio/php72-cli
+
+  - name: php72-fpm
+    type: docker-hub
+    source:
+      repository: phpdockerio/php72-fpm
+
+  - name: php73-cli
+    type: docker-hub
+    source:
+      repository: phpdockerio/php73-cli
+
+  - name: php73-fpm
+    type: docker-hub
+    source:
+      repository: phpdockerio/php73-fpm
+
+  - name: php74-cli
+    type: docker-hub
+    source:
+      repository: phpdockerio/php74-cli
+
+  - name: php74-fpm
+    type: docker-hub
+    source:
+      repository: phpdockerio/php74-fpm
+
+  - name: php74-swoole
+    type: docker-hub
+    source:
+      repository: phpdockerio/php74-swoole
+
+  - name: php80-cli
+    type: docker-hub
+    source:
+      repository: phpdockerio/php80-cli
+
+  - name: php80-fpm
+    type: docker-hub
+    source:
+      repository: phpdockerio/php80-fpm
+
+  - name: php80-swoole
+    type: docker-hub
+    source:
+      repository: phpdockerio/php80-swoole
+
+jobs:
+  - name: php-7.2
+    old_name: php 7.2
+    public: true
+    plan:
+      - get: base-images
+        trigger: true
+      - get: time-slot-3
+        trigger: true
+      - put: php72-cli
+        params:
+          build: base-images/php/7.2/cli
+      - put: php72-fpm
+        params:
+          build: base-images/php/7.2/fpm
+
+  - name: php-7.3
+    old_name: php 7.3
+    public: true
+    plan:
+      - get: base-images
+        trigger: true
+      - get: time-slot-3
+        trigger: true
+      - put: php73-cli
+        params:
+          build: base-images/php/7.3/cli
+      - put: php73-fpm
+        params:
+          build: base-images/php/7.3/fpm
+
+  - name: php-7.4
+    old_name: php 7.4
+    public: true
+    plan:
+      - get: base-images
+        trigger: true
+      - get: time-slot-2
+        trigger: true
+      - put: php74-cli
+        params:
+          build: base-images/php/7.4/cli
+      - put: php74-fpm
+        params:
+          build: base-images/php/7.4/fpm
+      - put: php74-swoole
+        params:
+          build: base-images/php/7.4/swoole
+
+  - name: php-8.0
+    old_name: php 8.0
+    public: true
+    plan:
+      - get: base-images
+        trigger: true
+      - get: time-slot-1
+        trigger: true
+      - put: php80-cli
+        params:
+          build: base-images/php/8.0/cli
+      - put: php80-fpm
+        params:
+          build: base-images/php/8.0/fpm
+      - put: php80-swoole
+        params:
+          build: base-images/php/8.0/swoole

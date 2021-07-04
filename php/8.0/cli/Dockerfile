@@ -1,30 +1,34 @@
 ####################################
-# PHPDocker.io PHP 7.1 / CLI image #
+# PHPDocker.io PHP 8.0 / CLI image #
 ####################################
 
-FROM ubuntu:xenial
+FROM ubuntu:focal
 
 # Fixes some weird terminal issues such as broken clear / CTRL+L
 ENV TERM=linux
 
-# Install Ondrej repos for Ubuntu Xenial, PHP7.1, composer and selected extensions
-RUN echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main" > /etc/apt/sources.list.d/ondrej-php.list \
+# Ensure apt doesn't ask questions when installing stuff
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Ondrej repos for Ubuntu focal, PHP8.0, composer and selected extensions - better selection than
+# the distro's packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gnupg \
+    && echo "deb http://ppa.launchpad.net/ondrej/php/ubuntu focal main" > /etc/apt/sources.list.d/ondrej-php.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C \
     && apt-get update \
     && apt-get -y --no-install-recommends install \
-        curl \
         ca-certificates \
-        php7.1-sodium \
-        php7.1-apcu \
-        php7.1-apcu-bc \
-        php7.1-cli \
-        php7.1-curl \
-        php7.1-json \
-        php7.1-mbstring \
-        php7.1-opcache \
-        php7.1-readline \
-        php7.1-xml \
-        php7.1-zip \
+        curl \
+        unzip \
+        php8.0-apcu \
+        php8.0-cli \
+        php8.0-curl \
+        php8.0-mbstring \
+        php8.0-opcache \
+        php8.0-readline \
+        php8.0-xml \
+        php8.0-zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* ~/.composer
 
